@@ -177,7 +177,8 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
             VirtualKeyCode::Numpad1 | VirtualKeyCode::B => try_move_player(-1, 1, &mut gs.ecs),
 
             // Skip Turn
-            VirtualKeyCode::Numpad5 | VirtualKeyCode::Space => return skip_turn(&mut gs.ecs),
+            VirtualKeyCode::Numpad5 => return skip_turn(&mut gs.ecs),
+            VirtualKeyCode::Space => return skip_turn(&mut gs.ecs),
 
             // Level changes
             VirtualKeyCode::Period => {
