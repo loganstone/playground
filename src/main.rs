@@ -34,6 +34,7 @@ pub mod particle_system;
 pub mod random_table;
 pub mod rex_assets;
 pub mod saveload_system;
+pub mod trigger_system;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
@@ -71,6 +72,8 @@ impl State {
         mob.run_now(&self.ecs);
         let mut mapindex = MapIndexingSystem {};
         mapindex.run_now(&self.ecs);
+        let mut triggers = trigger_system::TriggerSystem {};
+        triggers.run_now(&self.ecs);
         let mut melee = MeleeCombatSystem {};
         melee.run_now(&self.ecs);
         let mut damage = DamageSystem {};
@@ -110,11 +113,14 @@ impl GameState for State {
                 draw_map(&self.ecs, ctx);
                 let positions = self.ecs.read_storage::<Position>();
                 let renderables = self.ecs.read_storage::<Renderable>();
+                let hidden = self.ecs.read_storage::<Hidden>();
                 let map = self.ecs.fetch::<Map>();
 
-                let mut data = (&positions, &renderables).join().collect::<Vec<_>>();
+                let mut data = (&positions, &renderables, !&hidden)
+                    .join()
+                    .collect::<Vec<_>>();
                 data.sort_by(|&a, &b| b.1.render_order.cmp(&a.1.render_order));
-                for (pos, render) in data.iter() {
+                for (pos, render, _hidden) in data.iter() {
                     let idx = map.xy_idx(pos.x, pos.y);
                     if map.visible_tiles[idx] {
                         ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph)
@@ -481,6 +487,10 @@ fn main() {
     gs.ecs.register::<HungerClock>();
     gs.ecs.register::<ProvidesFood>();
     gs.ecs.register::<MagicMapper>();
+    gs.ecs.register::<Hidden>();
+    gs.ecs.register::<EntryTrigger>();
+    gs.ecs.register::<EntityMoved>();
+    gs.ecs.register::<SingleActivation>();
 
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
 

@@ -2,8 +2,8 @@ extern crate rltk;
 use rltk::{Console, Point, Rltk, VirtualKeyCode, RGB};
 extern crate specs;
 use super::{
-    gamelog::GameLog, rex_assets::RexAssets, CombatStats, Equipped, HungerClock, HungerState,
-    InBackpack, Map, Name, Player, Position, RunState, State, Viewshed,
+    gamelog::GameLog, rex_assets::RexAssets, CombatStats, Equipped, Hidden, HungerClock,
+    HungerState, InBackpack, Map, Name, Player, Position, RunState, State, Viewshed,
 };
 use specs::prelude::*;
 
@@ -95,13 +95,14 @@ fn draw_tooltips(ecs: &World, ctx: &mut Rltk) {
     let map = ecs.fetch::<Map>();
     let names = ecs.read_storage::<Name>();
     let positions = ecs.read_storage::<Position>();
+    let hidden = ecs.read_storage::<Hidden>();
 
     let mouse_pos = ctx.mouse_pos();
     if mouse_pos.0 >= map.width || mouse_pos.1 >= map.height {
         return;
     }
     let mut tooltip: Vec<String> = Vec::new();
-    for (name, position) in (&names, &positions).join() {
+    for (name, position, _hidden) in (&names, &positions, !&hidden).join() {
         if position.x == mouse_pos.0 && position.y == mouse_pos.1 {
             tooltip.push(name.name.to_string());
         }
