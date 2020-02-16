@@ -40,7 +40,7 @@ pub fn remove_unreachable_areas_returning_most_distant(map: &mut Map, start_idx:
         map.height as usize,
         &map_starts,
         map,
-        200.0,
+        300.0,
     );
     let mut exit_tile = (0, 0.0f32);
     for (i, tile) in map.tiles.iter_mut().enumerate() {
