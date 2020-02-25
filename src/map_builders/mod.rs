@@ -15,11 +15,14 @@ mod room_based_spawner;
 mod room_based_stairs;
 mod room_based_starting_position;
 mod room_corner_rounding;
+mod room_corridor_spawner;
 mod room_draw;
 mod room_exploder;
 mod room_sorter;
 mod rooms_corridors_bsp;
 mod rooms_corridors_dogleg;
+mod rooms_corridors_lines;
+mod rooms_corridors_nearest;
 mod simple_map;
 mod voronoi;
 mod voronoi_spawning;
@@ -39,11 +42,14 @@ use room_based_spawner::RoomBasedSpawner;
 use room_based_stairs::RoomBasedStairs;
 use room_based_starting_position::RoomBasedStartingPosition;
 use room_corner_rounding::RoomCornerRounder;
+use room_corridor_spawner::CorridorSpawner;
 use room_draw::RoomDrawer;
 use room_exploder::RoomExploder;
 use room_sorter::{RoomSort, RoomSorter};
 use rooms_corridors_bsp::BspCorridors;
 use rooms_corridors_dogleg::DoglegCorridors;
+use rooms_corridors_lines::StraightLineCorridors;
+use rooms_corridors_nearest::NearestCorridors;
 use simple_map::SimpleMapBuilder;
 use voronoi::VoronoiCellBuilder;
 use voronoi_spawning::VoronoiSpawning;
@@ -54,6 +60,7 @@ pub struct BuilderMap {
     pub map: Map,
     pub starting_position: Option<Position>,
     pub rooms: Option<Vec<Rect>>,
+    pub corridors: Option<Vec<Vec<usize>>>,
     pub history: Vec<Map>,
 }
 
@@ -85,6 +92,7 @@ impl BuilderChain {
                 map: Map::new(new_depth),
                 starting_position: None,
                 rooms: None,
+                corridors: None,
                 history: Vec::new(),
             },
         }
@@ -173,10 +181,17 @@ fn random_room_builder(rng: &mut rltk::RandomNumberGenerator, builder: &mut Buil
 
         builder.with(RoomDrawer::new());
 
-        let corridor_roll = rng.roll_dice(1, 2);
+        let corridor_roll = rng.roll_dice(1, 4);
         match corridor_roll {
             1 => builder.with(DoglegCorridors::new()),
+            2 => builder.with(NearestCorridors::new()),
+            3 => builder.with(StraightLineCorridors::new()),
             _ => builder.with(BspCorridors::new()),
+        }
+
+        let cspawn_roll = rng.roll_dice(1, 2);
+        if cspawn_roll == 1 {
+            builder.with(CorridorSpawner::new());
         }
 
         let modifier_roll = rng.roll_dice(1, 6);
