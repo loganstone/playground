@@ -138,7 +138,7 @@ impl GameState for State {
                     }
 
                     self.mapgen_timer += ctx.frame_time_ms;
-                    if self.mapgen_timer > 1000.0 {
+                    if self.mapgen_timer > 100.0 {
                         self.mapgen_timer = 0.0;
                         self.mapgen_index += 1;
                         if self.mapgen_index >= self.mapgen_history.len() {
@@ -515,6 +515,7 @@ fn main() {
     gs.ecs.register::<SingleActivation>();
     gs.ecs.register::<BlocksVisibility>();
     gs.ecs.register::<Door>();
+    gs.ecs.register::<Bystander>();
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
 
     raws::load_raws();
