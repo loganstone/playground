@@ -170,7 +170,7 @@ fn get_tile_glyph(idx: usize, map: &Map) -> (u8, RGB, RGB) {
         }
         TileType::Gravel => {
             glyph = rltk::to_cp437(';');
-            fg = RGB::named(rltk::GRAY);
+            fg = RGB::from_f32(0.5, 0.5, 0.5);
         }
     }
     if map.bloodstains.contains(&idx) {

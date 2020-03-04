@@ -4,7 +4,7 @@ extern crate specs;
 use super::{
     gamelog::GameLog, BlocksTile, BlocksVisibility, Bystander, CombatStats, Door, EntityMoved,
     HungerClock, HungerState, Item, Map, Monster, Player, Position, Renderable, RunState, State,
-    TileType, Viewshed, WantsToMelee, WantsToPickupItem,
+    TileType, Vendor, Viewshed, WantsToMelee, WantsToPickupItem,
 };
 use specs::prelude::*;
 use std::cmp::{max, min};
@@ -23,6 +23,7 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
     let mut blocks_movement = ecs.write_storage::<BlocksTile>();
     let mut renderables = ecs.write_storage::<Renderable>();
     let bystanders = ecs.read_storage::<Bystander>();
+    let vendors = ecs.read_storage::<Vendor>();
 
     let mut swap_entities: Vec<(Entity, i32, i32)> = Vec::new();
 
@@ -40,7 +41,8 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
 
         for potential_target in map.tile_content[destination_idx].iter() {
             let bystander = bystanders.get(*potential_target);
-            if bystander.is_some() {
+            let vendor = vendors.get(*potential_target);
+            if bystander.is_some() || vendor.is_some() {
                 // Note that we want to move the bystander
                 swap_entities.push((*potential_target, pos.x, pos.y));
 
