@@ -20,7 +20,8 @@ pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
     skills.skills.insert(Skill::Defense, 1);
     skills.skills.insert(Skill::Magic, 1);
 
-    ecs.create_entity()
+    let player = ecs
+        .create_entity()
         .with(Position {
             x: player_x,
             y: player_y,
@@ -80,7 +81,47 @@ pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
             level: 1,
         })
         .marked::<SimpleMarker<SerializeMe>>()
-        .build()
+        .build();
+
+    // Starting equipment
+    spawn_named_entity(
+        &RAWS.lock().unwrap(),
+        ecs,
+        "Rusty Longsword",
+        SpawnType::Equipped { by: player },
+    );
+    spawn_named_entity(
+        &RAWS.lock().unwrap(),
+        ecs,
+        "Dried Sausage",
+        SpawnType::Carried { by: player },
+    );
+    spawn_named_entity(
+        &RAWS.lock().unwrap(),
+        ecs,
+        "Beer",
+        SpawnType::Carried { by: player },
+    );
+    spawn_named_entity(
+        &RAWS.lock().unwrap(),
+        ecs,
+        "Stained Tunic",
+        SpawnType::Equipped { by: player },
+    );
+    spawn_named_entity(
+        &RAWS.lock().unwrap(),
+        ecs,
+        "Torn Trousers",
+        SpawnType::Equipped { by: player },
+    );
+    spawn_named_entity(
+        &RAWS.lock().unwrap(),
+        ecs,
+        "Old Boots",
+        SpawnType::Equipped { by: player },
+    );
+
+    player
 }
 
 const MAX_MONSTERS: i32 = 4;
@@ -164,7 +205,7 @@ pub fn spawn_entity(ecs: &mut World, spawn: &(&usize, &String)) {
 
     let spawn_result = spawn_named_entity(
         &RAWS.lock().unwrap(),
-        ecs.create_entity(),
+        ecs,
         &spawn.1,
         SpawnType::AtPosition { x, y },
     );
