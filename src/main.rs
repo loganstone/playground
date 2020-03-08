@@ -41,6 +41,7 @@ pub mod rex_assets;
 pub mod saveload_system;
 pub mod trigger_system;
 pub use gamesystem::*;
+pub mod animal_ai_system;
 #[macro_use]
 extern crate lazy_static;
 
@@ -87,6 +88,8 @@ impl State {
         mob.run_now(&self.ecs);
         let mut mapindex = MapIndexingSystem {};
         mapindex.run_now(&self.ecs);
+        let mut animal = animal_ai_system::AnimalAI {};
+        animal.run_now(&self.ecs);
         let mut bystander = bystander_ai_system::BystanderAI {};
         bystander.run_now(&self.ecs);
         let mut triggers = trigger_system::TriggerSystem {};
@@ -143,7 +146,7 @@ impl GameState for State {
                     }
 
                     self.mapgen_timer += ctx.frame_time_ms;
-                    if self.mapgen_timer > 100.0 {
+                    if self.mapgen_timer > 500.0 {
                         self.mapgen_timer = 0.0;
                         self.mapgen_index += 1;
                         if self.mapgen_index >= self.mapgen_history.len() {
@@ -519,6 +522,9 @@ fn main() {
     gs.ecs.register::<Skills>();
     gs.ecs.register::<Pools>();
     gs.ecs.register::<NaturalAttackDefense>();
+    gs.ecs.register::<LootTable>();
+    gs.ecs.register::<Carnivore>();
+    gs.ecs.register::<Herbivore>();
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
 
     raws::load_raws();
