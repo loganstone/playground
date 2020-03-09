@@ -283,6 +283,7 @@ impl<'a> System<'a> for ItemUseSystem {
                                 *mob,
                                 SufferDamage {
                                     amount: damage.damage,
+                                    from_player: true,
                                 },
                             )
                             .expect("Unable to insert");

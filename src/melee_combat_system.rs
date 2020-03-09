@@ -27,6 +27,7 @@ impl<'a> System<'a> for MeleeCombatSystem {
         ReadStorage<'a, MeleeWeapon>,
         ReadStorage<'a, Wearable>,
         ReadStorage<'a, NaturalAttackDefense>,
+        ReadExpect<'a, Entity>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -47,6 +48,7 @@ impl<'a> System<'a> for MeleeCombatSystem {
             meleeweapons,
             wearables,
             natural,
+            player_entity,
         ) = data;
 
         for (entity, wants_melee, name, attacker_attributes, attacker_skills, attacker_pools) in (
@@ -148,7 +150,13 @@ impl<'a> System<'a> for MeleeCombatSystem {
                             + weapon_damage_bonus,
                     );
                     inflict_damage
-                        .insert(wants_melee.target, SufferDamage { amount: damage })
+                        .insert(
+                            wants_melee.target,
+                            SufferDamage {
+                                amount: damage,
+                                from_player: entity == *player_entity,
+                            },
+                        )
                         .expect("Unable to insert damage component");
                     log.entries.insert(
                         0,

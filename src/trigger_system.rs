@@ -75,6 +75,7 @@ impl<'a> System<'a> for TriggerSystem {
                                         entity,
                                         SufferDamage {
                                             amount: damage.damage,
+                                            from_player: false,
                                         },
                                     )
                                     .expect("Unable to do damage");

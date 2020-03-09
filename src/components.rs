@@ -95,9 +95,10 @@ pub struct WantsToMelee {
     pub target: Entity,
 }
 
-#[derive(Component, Debug, ConvertSaveload, Clone)]
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct SufferDamage {
     pub amount: i32,
+    pub from_player: bool,
 }
 
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
