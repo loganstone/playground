@@ -668,8 +668,8 @@ pub fn ranged_target(
         for idx in visible.visible_tiles.iter() {
             let distance = rltk::DistanceAlg::Pythagoras.distance2d(*player_pos, *idx);
             if distance <= range as f32 {
-                let screen_x = idx.x - min_x;
-                let screen_y = idx.y - min_y;
+                let screen_x = idx.x - min_x - 1;
+                let screen_y = idx.y - min_y - 1;
                 if screen_x > 1
                     && screen_x < (max_x - min_x) - 1
                     && screen_y > 1
@@ -687,8 +687,8 @@ pub fn ranged_target(
     // Draw mouse cursor
     let mouse_pos = ctx.mouse_pos();
     let mut mouse_map_pos = mouse_pos;
-    mouse_map_pos.0 += min_x - 1;
-    mouse_map_pos.1 += min_y - 1;
+    mouse_map_pos.0 += min_x;
+    mouse_map_pos.1 += min_y;
     let mut valid_target = false;
     for idx in available_cells.iter() {
         if idx.x == mouse_map_pos.0 && idx.y == mouse_map_pos.1 {

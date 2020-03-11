@@ -56,6 +56,10 @@ fn get_forest_glyph(idx: usize, map: &Map) -> (u8, RGB, RGB) {
             glyph = rltk::to_cp437('>');
             fg = RGB::from_f32(0., 1.0, 1.0);
         }
+        TileType::UpStairs => {
+            glyph = rltk::to_cp437('<');
+            fg = RGB::from_f32(0., 1.0, 1.0);
+        }
         _ => {
             glyph = rltk::to_cp437('"');
             fg = RGB::from_f32(0.0, 0.6, 0.0);
@@ -87,6 +91,10 @@ fn get_tile_glyph_default(idx: usize, map: &Map) -> (u8, RGB, RGB) {
         }
         TileType::DownStairs => {
             glyph = rltk::to_cp437('>');
+            fg = RGB::from_f32(0., 1.0, 1.0);
+        }
+        TileType::UpStairs => {
+            glyph = rltk::to_cp437('<');
             fg = RGB::from_f32(0., 1.0, 1.0);
         }
         TileType::Bridge => {
