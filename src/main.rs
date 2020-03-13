@@ -42,6 +42,7 @@ pub mod saveload_system;
 pub mod trigger_system;
 pub use gamesystem::*;
 pub mod animal_ai_system;
+mod lighting_system;
 #[macro_use]
 extern crate lazy_static;
 
@@ -71,6 +72,7 @@ pub enum RunState {
         row: i32,
     },
     MapGeneration,
+    ShowCheatMenu,
 }
 
 pub struct State {
@@ -111,6 +113,8 @@ impl State {
         hunger.run_now(&self.ecs);
         let mut particles = particle_system::ParticleSpawnSystem {};
         particles.run_now(&self.ecs);
+        let mut lighting = lighting_system::LightingSystem {};
+        lighting.run_now(&self.ecs);
 
         self.ecs.maintain();
     }
@@ -207,6 +211,18 @@ impl GameState for State {
                                 .expect("Unable to insert intent");
                             newrunstate = RunState::PlayerTurn;
                         }
+                    }
+                }
+            }
+            RunState::ShowCheatMenu => {
+                let result = gui::show_cheat_mode(self, ctx);
+                match result {
+                    gui::CheatMenuResult::Cancel => newrunstate = RunState::AwaitingInput,
+                    gui::CheatMenuResult::NoResponse => {}
+                    gui::CheatMenuResult::TeleportToExit => {
+                        self.goto_level(1);
+                        self.mapgen_next_state = Some(RunState::PreRun);
+                        newrunstate = RunState::MapGeneration;
                     }
                 }
             }
@@ -452,6 +468,7 @@ fn main() {
     gs.ecs.register::<Carnivore>();
     gs.ecs.register::<Herbivore>();
     gs.ecs.register::<OtherLevelPosition>();
+    gs.ecs.register::<LightSource>();
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
 
     raws::load_raws();
