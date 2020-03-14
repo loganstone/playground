@@ -8,6 +8,8 @@ mod spawn_table_structs;
 use spawn_table_structs::*;
 mod loot_structs;
 use loot_structs::*;
+mod faction_structs;
+pub use faction_structs::*;
 
 mod rawmaster;
 pub use rawmaster::*;
@@ -27,6 +29,7 @@ pub struct Raws {
     pub props: Vec<Prop>,
     pub spawn_table: Vec<SpawnTableEntry>,
     pub loot_tables: Vec<LootTable>,
+    pub faction_table: Vec<FactionInfo>,
 }
 
 pub fn load_raws() {

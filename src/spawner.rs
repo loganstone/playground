@@ -2,9 +2,9 @@ extern crate rltk;
 use rltk::{RandomNumberGenerator, RGB};
 extern crate specs;
 use super::{
-    random_table::RandomTable, raws::*, Attribute, Attributes, HungerClock, HungerState,
-    LightSource, Map, Name, Player, Pool, Pools, Position, Rect, Renderable, SerializeMe, Skill,
-    Skills, TileType, Viewshed,
+    random_table::RandomTable, raws::*, Attribute, Attributes, Faction, HungerClock, HungerState,
+    Initiative, LightSource, Map, Name, Player, Pool, Pools, Position, Rect, Renderable,
+    SerializeMe, Skill, Skills, TileType, Viewshed,
 };
 use crate::specs::saveload::{MarkedBuilder, SimpleMarker};
 use crate::{attr_bonus, mana_at_level, player_hp_at_level};
@@ -83,6 +83,10 @@ pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
         .with(LightSource {
             color: rltk::RGB::from_f32(1.0, 1.0, 0.5),
             range: 8,
+        })
+        .with(Initiative { current: 0 })
+        .with(Faction {
+            name: "Player".to_string(),
         })
         .marked::<SimpleMarker<SerializeMe>>()
         .build();
