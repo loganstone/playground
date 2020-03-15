@@ -4,7 +4,7 @@ extern crate specs;
 use super::{
     gamelog::GameLog, raws::Reaction, Attributes, BlocksTile, BlocksVisibility, Door, EntityMoved,
     Faction, HungerClock, HungerState, Item, Map, Player, Pools, Position, Renderable, RunState,
-    State, TileType, Viewshed, WantsToMelee, WantsToPickupItem,
+    State, TileType, Vendor, VendorMode, Viewshed, WantsToMelee, WantsToPickupItem,
 };
 use specs::prelude::*;
 use std::cmp::{max, min};
@@ -23,6 +23,7 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) -> RunState 
     let mut blocks_movement = ecs.write_storage::<BlocksTile>();
     let mut renderables = ecs.write_storage::<Renderable>();
     let factions = ecs.read_storage::<Faction>();
+    let vendors = ecs.read_storage::<Vendor>();
     let mut result = RunState::AwaitingInput;
 
     let mut swap_entities: Vec<(Entity, i32, i32)> = Vec::new();
@@ -40,6 +41,13 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) -> RunState 
         let destination_idx = map.xy_idx(pos.x + delta_x, pos.y + delta_y);
 
         for potential_target in map.tile_content[destination_idx].iter() {
+            if let Some(_vendor) = vendors.get(*potential_target) {
+                return RunState::ShowVendor {
+                    vendor: *potential_target,
+                    mode: VendorMode::Sell,
+                };
+            }
+
             let mut hostile = true;
             if combat_stats.get(*potential_target).is_some() {
                 if let Some(faction) = factions.get(*potential_target) {

@@ -51,6 +51,11 @@ pub struct Initiative {
 }
 
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
+pub struct Vendor {
+    pub categories: Vec<String>,
+}
+
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct MyTurn {}
 
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
@@ -100,6 +105,9 @@ pub struct Pools {
     pub mana: Pool,
     pub xp: i32,
     pub level: i32,
+    pub total_weight: f32,
+    pub total_initiative_penalty: f32,
+    pub gold: f32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -151,7 +159,14 @@ pub struct LootTable {
 }
 
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
-pub struct Item {}
+pub struct EquipmentChanged {}
+
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
+pub struct Item {
+    pub initiative_penalty: f32,
+    pub weight_lbs: f32,
+    pub base_value: f32,
+}
 
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct Consumable {}
