@@ -3,6 +3,7 @@ use rltk::RGB;
 
 pub fn tile_glyph(idx: usize, map: &Map) -> (u8, RGB, RGB) {
     let (glyph, mut fg, mut bg) = match map.depth {
+        4 => get_limestone_cavern_glyph(idx, map),
         3 => get_limestone_cavern_glyph(idx, map),
         2 => get_forest_glyph(idx, map),
         _ => get_tile_glyph_default(idx, map),
@@ -101,7 +102,7 @@ fn get_limestone_cavern_glyph(idx: usize, map: &Map) -> (u8, RGB, RGB) {
         }
         TileType::DeepWater => {
             glyph = rltk::to_cp437('▓');
-            fg = RGB::named(rltk::BLUE);
+            fg = RGB::from_f32(0.2, 0.2, 1.0);
         }
         TileType::Gravel => {
             glyph = rltk::to_cp437(';');

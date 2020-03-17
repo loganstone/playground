@@ -88,6 +88,7 @@ impl PrefabBuilder {
         match ch {
             ' ' => build_data.map.tiles[idx] = TileType::Floor,
             '#' => build_data.map.tiles[idx] = TileType::Wall,
+            '≈' => build_data.map.tiles[idx] = TileType::DeepWater,
             '@' => {
                 let x = idx as i32 % build_data.map.width;
                 let y = idx as i32 / build_data.map.width;
@@ -106,6 +107,10 @@ impl PrefabBuilder {
                 build_data.map.tiles[idx] = TileType::Floor;
                 build_data.spawn_list.push((idx, "Orc".to_string()));
             }
+            'O' => {
+                build_data.map.tiles[idx] = TileType::Floor;
+                build_data.spawn_list.push((idx, "Orc Leader".to_string()));
+            }
             '^' => {
                 build_data.map.tiles[idx] = TileType::Floor;
                 build_data.spawn_list.push((idx, "Bear Trap".to_string()));
@@ -119,6 +124,10 @@ impl PrefabBuilder {
                 build_data
                     .spawn_list
                     .push((idx, "Health Potion".to_string()));
+            }
+            '☼' => {
+                build_data.map.tiles[idx] = TileType::Floor;
+                build_data.spawn_list.push((idx, "Watch Fire".to_string()));
             }
             _ => {
                 rltk::console::log(format!("Unknown glyph loading map: {}", (ch as u8) as char));
