@@ -1,5 +1,6 @@
 use super::{spawner, Map, Position, Rect, TileType, SHOW_MAPGEN_VISUALIZER};
 use specs::prelude::*;
+mod area_ending_point;
 mod area_starting_points;
 mod bsp_dungeon;
 mod bsp_interior;
@@ -31,6 +32,7 @@ mod town;
 mod voronoi;
 mod voronoi_spawning;
 mod waveform_collapse;
+use area_ending_point::*;
 use area_starting_points::{AreaStartingPosition, XStart, YStart};
 use bsp_dungeon::BspDungeonBuilder;
 use bsp_interior::BspInteriorBuilder;
@@ -319,6 +321,7 @@ pub fn level_builder(
         2 => forest_builder(new_depth, rng, width, height),
         3 => limestone_cavern_builder(new_depth, rng, width, height),
         4 => limestone_deep_cavern_builder(new_depth, rng, width, height),
+        5 => limestone_transition_builder(new_depth, rng, width, height),
         _ => random_builder(new_depth, rng, width, height),
     }
 }

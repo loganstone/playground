@@ -43,7 +43,7 @@ mod lighting_system;
 #[macro_use]
 extern crate lazy_static;
 
-const SHOW_MAPGEN_VISUALIZER: bool = true;
+const SHOW_MAPGEN_VISUALIZER: bool = false;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum VendorMode {
@@ -173,7 +173,7 @@ impl GameState for State {
                     }
 
                     self.mapgen_timer += ctx.frame_time_ms;
-                    if self.mapgen_timer > 50.0 {
+                    if self.mapgen_timer > 150.0 {
                         self.mapgen_timer = 0.0;
                         self.mapgen_index += 1;
                         if self.mapgen_index >= self.mapgen_history.len() {

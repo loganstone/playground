@@ -25,7 +25,7 @@ impl DistantExit {
             build_data.map.height as usize,
             &map_starts,
             &build_data.map,
-            2000.0,
+            3000.0,
         );
         let mut exit_tile = (0, 0.0f32);
         for (i, tile) in build_data.map.tiles.iter_mut().enumerate() {
