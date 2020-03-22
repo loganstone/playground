@@ -1,7 +1,7 @@
 extern crate specs;
 use super::{
-    gamelog::GameLog, particle_system::ParticleBuilder, EntityMoved, EntryTrigger, Hidden,
-    InflictsDamage, Map, Name, Position, SingleActivation, SufferDamage,
+    gamelog::GameLog, particle_system::ParticleBuilder, ApplyTeleport, EntityMoved, EntryTrigger,
+    Hidden, InflictsDamage, Map, Name, Position, SingleActivation, SufferDamage, TeleportTo,
 };
 use specs::prelude::*;
 
@@ -22,6 +22,9 @@ impl<'a> System<'a> for TriggerSystem {
         WriteExpect<'a, ParticleBuilder>,
         WriteStorage<'a, SufferDamage>,
         ReadStorage<'a, SingleActivation>,
+        ReadStorage<'a, TeleportTo>,
+        WriteStorage<'a, ApplyTeleport>,
+        ReadExpect<'a, Entity>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -38,6 +41,9 @@ impl<'a> System<'a> for TriggerSystem {
             mut particle_builder,
             mut inflict_damage,
             single_activation,
+            teleporters,
+            mut apply_teleport,
+            player_entity,
         ) = data;
 
         // Iterate the entities that moved and their final position
@@ -79,6 +85,24 @@ impl<'a> System<'a> for TriggerSystem {
                                         },
                                     )
                                     .expect("Unable to do damage");
+                            }
+
+                            // If its a teleporter, then do that
+                            if let Some(teleport) = teleporters.get(*entity_id) {
+                                if (teleport.player_only && entity == *player_entity)
+                                    || !teleport.player_only
+                                {
+                                    apply_teleport
+                                        .insert(
+                                            entity,
+                                            ApplyTeleport {
+                                                dest_x: teleport.x,
+                                                dest_y: teleport.y,
+                                                dest_depth: teleport.depth,
+                                            },
+                                        )
+                                        .expect("Unable to insert");
+                                }
                             }
 
                             // If it is single activation, it needs to be removed
