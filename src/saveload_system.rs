@@ -115,7 +115,10 @@ pub fn save_game(ecs: &mut World) {
             TownPortal,
             TeleportTo,
             ApplyMove,
-            ApplyTeleport
+            ApplyTeleport,
+            MagicItem,
+            ObfuscatedName,
+            IdentifiedItem
         );
     }
 
@@ -225,7 +228,10 @@ pub fn load_game(ecs: &mut World) {
             TownPortal,
             TeleportTo,
             ApplyMove,
-            ApplyTeleport
+            ApplyTeleport,
+            MagicItem,
+            ObfuscatedName,
+            IdentifiedItem
         );
     }
 
