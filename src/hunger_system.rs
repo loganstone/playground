@@ -1,4 +1,4 @@
-use super::{gamelog::GameLog, HungerClock, HungerState, MyTurn, SufferDamage};
+use super::{effects::*, gamelog::GameLog, HungerClock, HungerState, MyTurn};
 use specs::prelude::*;
 
 pub struct HungerSystem {}
@@ -9,13 +9,12 @@ impl<'a> System<'a> for HungerSystem {
         Entities<'a>,
         WriteStorage<'a, HungerClock>,
         ReadExpect<'a, Entity>, // The player
-        WriteStorage<'a, SufferDamage>,
         WriteExpect<'a, GameLog>,
         ReadStorage<'a, MyTurn>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (entities, mut hunger_clock, player_entity, mut inflict_damage, mut log, turns) = data;
+        let (entities, mut hunger_clock, player_entity, mut log, turns) = data;
 
         for (entity, mut clock, _myturn) in (&entities, &mut hunger_clock, &turns).join() {
             clock.duration -= 1;
@@ -52,15 +51,11 @@ impl<'a> System<'a> for HungerSystem {
                                     .to_string(),
                             );
                         }
-                        inflict_damage
-                            .insert(
-                                entity,
-                                SufferDamage {
-                                    amount: 1,
-                                    from_player: false,
-                                },
-                            )
-                            .expect("Unable to do damage");
+                        add_effect(
+                            None,
+                            EffectType::Damage { amount: 1 },
+                            Targets::Single { target: entity },
+                        );
                     }
                 }
             }

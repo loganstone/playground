@@ -171,12 +171,6 @@ pub struct Chasing {
 }
 
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
-pub struct SufferDamage {
-    pub amount: i32,
-    pub from_player: bool,
-}
-
-#[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct LootTable {
     pub table: String,
 }
@@ -326,6 +320,20 @@ pub struct NaturalAttackDefense {
 
 #[derive(Component, Serialize, Deserialize, Clone)]
 pub struct ParticleLifetime {
+    pub lifetime_ms: f32,
+}
+
+#[derive(Component, Serialize, Deserialize, Clone)]
+pub struct SpawnParticleLine {
+    pub glyph: u8,
+    pub color: RGB,
+    pub lifetime_ms: f32,
+}
+
+#[derive(Component, Serialize, Deserialize, Clone)]
+pub struct SpawnParticleBurst {
+    pub glyph: u8,
+    pub color: RGB,
     pub lifetime_ms: f32,
 }
 
