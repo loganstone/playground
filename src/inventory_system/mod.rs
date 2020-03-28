@@ -1,7 +1,7 @@
 use super::{
-    gamelog, AreaOfEffect, EquipmentChanged, Equippable, Equipped, IdentifiedItem, InBackpack,
-    Item, MagicItem, Map, MasterDungeonMap, Name, ObfuscatedName, Position, WantsToDropItem,
-    WantsToPickupItem, WantsToRemoveItem, WantsToUseItem,
+    gamelog, AreaOfEffect, CursedItem, EquipmentChanged, Equippable, Equipped, IdentifiedItem,
+    InBackpack, Item, MagicItem, Map, MasterDungeonMap, Name, ObfuscatedName, Position,
+    WantsToDropItem, WantsToPickupItem, WantsToRemoveItem, WantsToUseItem,
 };
 
 mod collection_system;
