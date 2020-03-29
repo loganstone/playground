@@ -9,6 +9,7 @@ mod hunger;
 mod movement;
 mod particles;
 mod triggers;
+use crate::components::AttributeBonus;
 
 lazy_static! {
     pub static ref EFFECT_QUEUE: Mutex<VecDeque<EffectSpawner>> = Mutex::new(VecDeque::new());
@@ -45,6 +46,11 @@ pub enum EffectType {
         y: i32,
         depth: i32,
         player_only: bool,
+    },
+    AttributeEffect {
+        bonus: AttributeBonus,
+        name: String,
+        duration: i32,
     },
 }
 
@@ -108,6 +114,7 @@ fn tile_effect_hits_entities(effect: &EffectType) -> bool {
         EffectType::Healing { .. } => true,
         EffectType::Confusion { .. } => true,
         EffectType::TeleportTo { .. } => true,
+        EffectType::AttributeEffect { .. } => true,
         _ => false,
     }
 }
@@ -145,6 +152,7 @@ fn affect_entity(ecs: &mut World, effect: &EffectSpawner, target: Entity) {
         EffectType::Healing { .. } => damage::heal_damage(ecs, effect, target),
         EffectType::Confusion { .. } => damage::add_confusion(ecs, effect, target),
         EffectType::TeleportTo { .. } => movement::apply_teleport(ecs, effect, target),
+        EffectType::AttributeEffect { .. } => damage::attribute_effect(ecs, effect, target),
         _ => {}
     }
 }

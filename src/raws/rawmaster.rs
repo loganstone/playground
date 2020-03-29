@@ -306,9 +306,10 @@ macro_rules! apply_effects {
                     })
                 }
                 "confusion" => {
-                    $eb = $eb.with(Confusion {
+                    $eb = $eb.with(Confusion {});
+                    $eb = $eb.with(Duration {
                         turns: effect.1.parse::<i32>().unwrap(),
-                    })
+                    });
                 }
                 "magic_mapping" => $eb = $eb.with(MagicMapper {}),
                 "town_portal" => $eb = $eb.with(TownPortal {}),
@@ -362,7 +363,11 @@ pub fn spawn_named_item(
         });
 
         if let Some(consumable) = &item_template.consumable {
-            eb = eb.with(crate::components::Consumable {});
+            let max_charges = consumable.charges.unwrap_or(1);
+            eb = eb.with(crate::components::Consumable {
+                max_charges,
+                charges: max_charges,
+            });
             apply_effects!(consumable.effects, eb);
         }
 
@@ -427,6 +432,15 @@ pub fn spawn_named_item(
                     eb = eb.with(CursedItem {});
                 }
             }
+        }
+
+        if let Some(ab) = &item_template.attributes {
+            eb = eb.with(AttributeBonus {
+                might: ab.might,
+                fitness: ab.fitness,
+                quickness: ab.quickness,
+                intelligence: ab.intelligence,
+            });
         }
 
         return Some(eb.build());

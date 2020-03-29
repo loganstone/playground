@@ -1,5 +1,8 @@
 extern crate specs;
-use crate::{Attributes, Initiative, MyTurn, Pools, Position, RunState};
+use crate::{
+    Attributes, Duration, EquipmentChanged, Initiative, MyTurn, Pools, Position, RunState,
+    StatusEffect,
+};
 use specs::prelude::*;
 
 pub struct InitiativeSystem {}
@@ -17,6 +20,9 @@ impl<'a> System<'a> for InitiativeSystem {
         ReadExpect<'a, Entity>,
         ReadExpect<'a, rltk::Point>,
         ReadStorage<'a, Pools>,
+        WriteStorage<'a, Duration>,
+        WriteStorage<'a, EquipmentChanged>,
+        ReadStorage<'a, StatusEffect>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -31,6 +37,9 @@ impl<'a> System<'a> for InitiativeSystem {
             player,
             player_pos,
             pools,
+            mut durations,
+            mut dirty,
+            statuses,
         ) = data;
 
         if *runstate != RunState::Ticking {
@@ -63,6 +72,7 @@ impl<'a> System<'a> for InitiativeSystem {
 
                 // If its the player, we want to go to an AwaitingInput state
                 if entity == *player {
+                    // Give control to the player
                     *runstate = RunState::AwaitingInput;
                 } else {
                     let distance = rltk::DistanceAlg::Pythagoras
@@ -77,6 +87,19 @@ impl<'a> System<'a> for InitiativeSystem {
                     turns
                         .insert(entity, MyTurn {})
                         .expect("Unable to insert turn");
+                }
+            }
+        }
+
+        // Handle durations
+        if *runstate == RunState::AwaitingInput {
+            for (effect_entity, duration, status) in (&entities, &mut durations, &statuses).join() {
+                duration.turns -= 1;
+                if duration.turns < 1 {
+                    dirty
+                        .insert(status.target, EquipmentChanged {})
+                        .expect("Unable to insert");
+                    entities.delete(effect_entity).expect("Unable to delete");
                 }
             }
         }

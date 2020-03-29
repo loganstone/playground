@@ -658,6 +658,9 @@ fn main() {
     gs.ecs.register::<CursedItem>();
     gs.ecs.register::<ProvidesRemoveCurse>();
     gs.ecs.register::<ProvidesIdentification>();
+    gs.ecs.register::<AttributeBonus>();
+    gs.ecs.register::<Duration>();
+    gs.ecs.register::<StatusEffect>();
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
 
     raws::load_raws();

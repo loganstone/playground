@@ -106,6 +106,10 @@ impl<'a> System<'a> for ItemEquipOnUse {
                             format!("You equip {}.", names.get(useitem.item).unwrap().name),
                         );
                     }
+
+                    dirty
+                        .insert(target, EquipmentChanged {})
+                        .expect("Unable to insert");
                 }
 
                 // Done with item
@@ -114,9 +118,6 @@ impl<'a> System<'a> for ItemEquipOnUse {
         }
 
         remove_use.iter().for_each(|e| {
-            dirty
-                .insert(*e, EquipmentChanged {})
-                .expect("Unable to insert");
             wants_use.remove(*e).expect("Unable to remove");
         });
     }

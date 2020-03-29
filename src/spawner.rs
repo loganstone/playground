@@ -2,10 +2,11 @@ extern crate rltk;
 use rltk::{RandomNumberGenerator, RGB};
 extern crate specs;
 use super::{
-    random_table::RandomTable, raws::*, Attribute, Attributes, EntryTrigger, EquipmentChanged,
-    Faction, HungerClock, HungerState, Initiative, LightSource, Map, MasterDungeonMap, Name,
-    OtherLevelPosition, Player, Pool, Pools, Position, Rect, Renderable, SerializeMe,
-    SingleActivation, Skill, Skills, TeleportTo, TileType, Viewshed,
+    random_table::RandomTable, raws::*, Attribute, AttributeBonus, Attributes, Duration,
+    EntryTrigger, EquipmentChanged, Faction, HungerClock, HungerState, Initiative, LightSource,
+    Map, MasterDungeonMap, Name, OtherLevelPosition, Player, Pool, Pools, Position, Rect,
+    Renderable, SerializeMe, SingleActivation, Skill, Skills, StatusEffect, TeleportTo, TileType,
+    Viewshed,
 };
 use crate::specs::saveload::{MarkedBuilder, SimpleMarker};
 use crate::{attr_bonus, mana_at_level, player_hp_at_level};
@@ -134,12 +135,22 @@ pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
         "Old Boots",
         SpawnType::Equipped { by: player },
     );
-    spawn_named_entity(
-        &RAWS.lock().unwrap(),
-        ecs,
-        "Identify Scroll",
-        SpawnType::Carried { by: player },
-    );
+
+    // Starting hangover
+    ecs.create_entity()
+        .with(StatusEffect { target: player })
+        .with(Duration { turns: 10 })
+        .with(Name {
+            name: "Hangover".to_string(),
+        })
+        .with(AttributeBonus {
+            might: Some(-1),
+            fitness: None,
+            quickness: Some(-1),
+            intelligence: Some(-1),
+        })
+        .marked::<SimpleMarker<SerializeMe>>()
+        .build();
 
     player
 }
