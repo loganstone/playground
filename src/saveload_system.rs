@@ -125,7 +125,15 @@ pub fn save_game(ecs: &mut World) {
             ProvidesIdentification,
             AttributeBonus,
             StatusEffect,
-            Duration
+            Duration,
+            KnownSpells,
+            SpellTemplate,
+            WantsToCastSpell,
+            TeachesSpell,
+            ProvidesMana,
+            Slow,
+            DamageOverTime,
+            SpecialAbilities
         );
     }
 
@@ -245,7 +253,15 @@ pub fn load_game(ecs: &mut World) {
             ProvidesIdentification,
             AttributeBonus,
             StatusEffect,
-            Duration
+            Duration,
+            KnownSpells,
+            SpellTemplate,
+            WantsToCastSpell,
+            TeachesSpell,
+            ProvidesMana,
+            Slow,
+            DamageOverTime,
+            SpecialAbilities
         );
     }
 

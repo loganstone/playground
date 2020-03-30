@@ -3,10 +3,10 @@ use rltk::{RandomNumberGenerator, RGB};
 extern crate specs;
 use super::{
     random_table::RandomTable, raws::*, Attribute, AttributeBonus, Attributes, Duration,
-    EntryTrigger, EquipmentChanged, Faction, HungerClock, HungerState, Initiative, LightSource,
-    Map, MasterDungeonMap, Name, OtherLevelPosition, Player, Pool, Pools, Position, Rect,
-    Renderable, SerializeMe, SingleActivation, Skill, Skills, StatusEffect, TeleportTo, TileType,
-    Viewshed,
+    EntryTrigger, EquipmentChanged, Faction, HungerClock, HungerState, Initiative, KnownSpells,
+    LightSource, Map, MasterDungeonMap, Name, OtherLevelPosition, Player, Pool, Pools, Position,
+    Rect, Renderable, SerializeMe, SingleActivation, Skill, Skills, StatusEffect, TeleportTo,
+    TileType, Viewshed,
 };
 use crate::specs::saveload::{MarkedBuilder, SimpleMarker};
 use crate::{attr_bonus, mana_at_level, player_hp_at_level};
@@ -15,6 +15,8 @@ use std::collections::HashMap;
 
 /// Spawns the player and returns his/her entity object.
 pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
+    spawn_all_spells(ecs);
+
     let mut skills = Skills {
         skills: HashMap::new(),
     };
@@ -95,6 +97,7 @@ pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
         .with(Faction {
             name: "Player".to_string(),
         })
+        .with(KnownSpells { spells: Vec::new() })
         .marked::<SimpleMarker<SerializeMe>>()
         .build();
 

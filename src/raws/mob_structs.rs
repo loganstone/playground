@@ -22,6 +22,7 @@ pub struct Mob {
     pub faction: Option<String>,
     pub gold: Option<String>,
     pub vendor: Option<Vec<String>>,
+    pub abilities: Option<Vec<MobAbility>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -49,4 +50,12 @@ pub struct NaturalAttack {
 pub struct MobLight {
     pub range: i32,
     pub color: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct MobAbility {
+    pub spell: String,
+    pub chance: f32,
+    pub range: f32,
+    pub min_range: f32,
 }

@@ -42,6 +42,7 @@ pub struct RawMaster {
     prop_index: HashMap<String, usize>,
     loot_index: HashMap<String, usize>,
     faction_index: HashMap<String, HashMap<String, Reaction>>,
+    spell_index: HashMap<String, usize>,
 }
 
 impl RawMaster {
@@ -54,12 +55,14 @@ impl RawMaster {
                 spawn_table: Vec::new(),
                 loot_tables: Vec::new(),
                 faction_table: Vec::new(),
+                spells: Vec::new(),
             },
             item_index: HashMap::new(),
             mob_index: HashMap::new(),
             prop_index: HashMap::new(),
             loot_index: HashMap::new(),
             faction_index: HashMap::new(),
+            spell_index: HashMap::new(),
         }
     }
 
@@ -124,6 +127,10 @@ impl RawMaster {
                 );
             }
             self.faction_index.insert(faction.name.clone(), reactions);
+        }
+
+        for (i, spell) in self.raws.spells.iter().enumerate() {
+            self.spell_index.insert(spell.name.clone(), i);
         }
     }
 }
@@ -290,6 +297,16 @@ macro_rules! apply_effects {
                         heal_amount: effect.1.parse::<i32>().unwrap(),
                     })
                 }
+                "provides_mana" => {
+                    $eb = $eb.with(ProvidesMana {
+                        mana_amount: effect.1.parse::<i32>().unwrap(),
+                    })
+                }
+                "teach_spell" => {
+                    $eb = $eb.with(TeachesSpell {
+                        spell: effect.1.to_string(),
+                    })
+                }
                 "ranged" => {
                     $eb = $eb.with(Ranged {
                         range: effect.1.parse::<i32>().unwrap(),
@@ -319,6 +336,16 @@ macro_rules! apply_effects {
                 "particle" => $eb = $eb.with(parse_particle(&effect.1)),
                 "remove_curse" => $eb = $eb.with(ProvidesRemoveCurse {}),
                 "identify" => $eb = $eb.with(ProvidesIdentification {}),
+                "slow" => {
+                    $eb = $eb.with(Slow {
+                        initiative_penalty: effect.1.parse::<f32>().unwrap(),
+                    })
+                }
+                "damage_over_time" => {
+                    $eb = $eb.with(DamageOverTime {
+                        damage: effect.1.parse::<i32>().unwrap(),
+                    })
+                }
                 _ => rltk::console::log(format!(
                     "Warning: consumable effect {} not implemented.",
                     effect_name
@@ -382,12 +409,17 @@ pub fn spawn_named_item(
                 damage_die_type: die_type,
                 damage_bonus: bonus,
                 hit_bonus: weapon.hit_bonus,
+                proc_chance: weapon.proc_chance,
+                proc_target: weapon.proc_target.clone(),
             };
             match weapon.attribute.as_str() {
                 "Quickness" => wpn.attribute = WeaponAttribute::Quickness,
                 _ => wpn.attribute = WeaponAttribute::Might,
             }
             eb = eb.with(wpn);
+            if let Some(proc_effects) = &weapon.proc_effects {
+                apply_effects!(proc_effects, eb);
+            }
         }
 
         if let Some(wearable) = &item_template.wearable {
@@ -448,6 +480,7 @@ pub fn spawn_named_item(
     None
 }
 
+#[allow(clippy::cognitive_complexity)]
 pub fn spawn_named_mob(
     raws: &RawMaster,
     ecs: &mut World,
@@ -673,6 +706,21 @@ pub fn spawn_named_mob(
             });
         }
 
+        if let Some(ability_list) = &mob_template.abilities {
+            let mut a = SpecialAbilities {
+                abilities: Vec::new(),
+            };
+            for ability in ability_list.iter() {
+                a.abilities.push(SpecialAbility {
+                    chance: ability.chance,
+                    spell: ability.spell.clone(),
+                    range: ability.range,
+                    min_range: ability.min_range,
+                });
+            }
+            eb = eb.with(a);
+        }
+
         let new_mob = eb.build();
 
         // Are they wielding anyting?
@@ -745,6 +793,58 @@ pub fn spawn_named_prop(
         }
 
         return Some(eb.build());
+    }
+    None
+}
+
+pub fn spawn_named_spell(raws: &RawMaster, ecs: &mut World, key: &str) -> Option<Entity> {
+    if raws.spell_index.contains_key(key) {
+        let spell_template = &raws.raws.spells[raws.spell_index[key]];
+
+        let mut eb = ecs.create_entity().marked::<SimpleMarker<SerializeMe>>();
+        eb = eb.with(SpellTemplate {
+            mana_cost: spell_template.mana_cost,
+        });
+        eb = eb.with(Name {
+            name: spell_template.name.clone(),
+        });
+        apply_effects!(spell_template.effects, eb);
+
+        return Some(eb.build());
+    }
+    None
+}
+
+pub fn spawn_all_spells(ecs: &mut World) {
+    let raws = &super::RAWS.lock().unwrap();
+    for spell in raws.raws.spells.iter() {
+        spawn_named_spell(raws, ecs, &spell.name);
+    }
+}
+
+pub fn find_spell_entity(ecs: &World, name: &str) -> Option<Entity> {
+    let names = ecs.read_storage::<Name>();
+    let spell_templates = ecs.read_storage::<SpellTemplate>();
+    let entities = ecs.entities();
+
+    for (entity, sname, _template) in (&entities, &names, &spell_templates).join() {
+        if name == sname.name {
+            return Some(entity);
+        }
+    }
+    None
+}
+
+pub fn find_spell_entity_by_name(
+    name: &str,
+    names: &ReadStorage<Name>,
+    spell_templates: &ReadStorage<SpellTemplate>,
+    entities: &Entities,
+) -> Option<Entity> {
+    for (entity, sname, _template) in (entities, names, spell_templates).join() {
+        if name == sname.name {
+            return Some(entity);
+        }
     }
     None
 }

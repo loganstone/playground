@@ -3,7 +3,7 @@ use rltk::{Console, Point, Rltk, VirtualKeyCode, RGB};
 extern crate specs;
 use super::{
     camera, gamelog::GameLog, rex_assets::RexAssets, Attribute, Attributes, Consumable, CursedItem,
-    Duration, Equipped, Hidden, HungerClock, HungerState, InBackpack, Item, MagicItem,
+    Duration, Equipped, Hidden, HungerClock, HungerState, InBackpack, Item, KnownSpells, MagicItem,
     MagicItemClass, Map, MasterDungeonMap, Name, ObfuscatedName, Pools, Position, RunState, State,
     StatusEffect, Vendor, VendorMode, Viewshed,
 };
@@ -258,6 +258,25 @@ pub fn draw_ui(ecs: &World, ctx: &mut Rltk) {
             y += 1;
             index += 1;
         }
+    }
+
+    // Spells
+    y += 1;
+    let blue = RGB::named(rltk::CYAN);
+    let known_spells_storage = ecs.read_storage::<KnownSpells>();
+    let known_spells = &known_spells_storage.get(*player_entity).unwrap().spells;
+    let mut index = 1;
+    for spell in known_spells.iter() {
+        ctx.print_color(50, y, blue, black, &format!("^{}", index));
+        ctx.print_color(
+            53,
+            y,
+            blue,
+            black,
+            &format!("{} ({})", &spell.display_name, spell.mana_cost),
+        );
+        index += 1;
+        y += 1;
     }
 
     // Status

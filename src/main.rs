@@ -25,7 +25,9 @@ mod gamelog;
 mod gui;
 mod inventory_system;
 mod spawner;
-use inventory_system::{ItemCollectionSystem, ItemDropSystem, ItemRemoveSystem, ItemUseSystem};
+use inventory_system::{
+    ItemCollectionSystem, ItemDropSystem, ItemRemoveSystem, ItemUseSystem, SpellUseSystem,
+};
 pub mod camera;
 mod gamesystem;
 pub mod hunger_system;
@@ -136,6 +138,8 @@ impl State {
         itemequip.run_now(&self.ecs);
         let mut itemuse = ItemUseSystem {};
         itemuse.run_now(&self.ecs);
+        let mut spelluse = SpellUseSystem {};
+        spelluse.run_now(&self.ecs);
         let mut item_id = inventory_system::ItemIdentificationSystem {};
         item_id.run_now(&self.ecs);
         let mut drop_items = ItemDropSystem {};
@@ -357,17 +361,31 @@ impl GameState for State {
                     gui::ItemMenuResult::Cancel => newrunstate = RunState::AwaitingInput,
                     gui::ItemMenuResult::NoResponse => {}
                     gui::ItemMenuResult::Selected => {
-                        let mut intent = self.ecs.write_storage::<WantsToUseItem>();
-                        intent
-                            .insert(
-                                *self.ecs.fetch::<Entity>(),
-                                WantsToUseItem {
-                                    item,
-                                    target: result.1,
-                                },
-                            )
-                            .expect("Unable to insert intent");
-                        newrunstate = RunState::Ticking;
+                        if self.ecs.read_storage::<SpellTemplate>().get(item).is_some() {
+                            let mut intent = self.ecs.write_storage::<WantsToCastSpell>();
+                            intent
+                                .insert(
+                                    *self.ecs.fetch::<Entity>(),
+                                    WantsToCastSpell {
+                                        spell: item,
+                                        target: result.1,
+                                    },
+                                )
+                                .expect("Unable to insert intent");
+                            newrunstate = RunState::Ticking;
+                        } else {
+                            let mut intent = self.ecs.write_storage::<WantsToUseItem>();
+                            intent
+                                .insert(
+                                    *self.ecs.fetch::<Entity>(),
+                                    WantsToUseItem {
+                                        item,
+                                        target: result.1,
+                                    },
+                                )
+                                .expect("Unable to insert intent");
+                            newrunstate = RunState::Ticking;
+                        }
                     }
                 }
             }
@@ -661,6 +679,14 @@ fn main() {
     gs.ecs.register::<AttributeBonus>();
     gs.ecs.register::<Duration>();
     gs.ecs.register::<StatusEffect>();
+    gs.ecs.register::<KnownSpells>();
+    gs.ecs.register::<SpellTemplate>();
+    gs.ecs.register::<WantsToCastSpell>();
+    gs.ecs.register::<TeachesSpell>();
+    gs.ecs.register::<ProvidesMana>();
+    gs.ecs.register::<Slow>();
+    gs.ecs.register::<DamageOverTime>();
+    gs.ecs.register::<SpecialAbilities>();
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
 
     raws::load_raws();
