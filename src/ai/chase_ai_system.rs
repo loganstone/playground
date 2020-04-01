@@ -1,5 +1,5 @@
 extern crate specs;
-use crate::{ApplyMove, Chasing, Map, MyTurn, Position};
+use crate::{ApplyMove, Chasing, Map, MyTurn, Position, TileSize};
 use specs::prelude::*;
 use std::collections::HashMap;
 
@@ -14,10 +14,11 @@ impl<'a> System<'a> for ChaseAI {
         WriteExpect<'a, Map>,
         Entities<'a>,
         WriteStorage<'a, ApplyMove>,
+        ReadStorage<'a, TileSize>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (mut turns, mut chasing, positions, mut map, entities, mut apply_move) = data;
+        let (mut turns, mut chasing, positions, mut map, entities, mut apply_move, sizes) = data;
 
         let mut targets: HashMap<Entity, (i32, i32)> = HashMap::new();
         let mut end_chase: Vec<Entity> = Vec::new();
@@ -39,11 +40,23 @@ impl<'a> System<'a> for ChaseAI {
         for (entity, pos, _chase, _myturn) in (&entities, &positions, &chasing, &turns).join() {
             turn_done.push(entity);
             let target_pos = targets[&entity];
-            let path = rltk::a_star_search(
-                map.xy_idx(pos.x, pos.y),
-                map.xy_idx(target_pos.0, target_pos.1),
-                &mut *map,
-            );
+            let path;
+
+            if let Some(size) = sizes.get(entity) {
+                let mut map_copy = map.clone();
+                map_copy.populate_blocked_multi(size.x, size.y);
+                path = rltk::a_star_search(
+                    map_copy.xy_idx(pos.x, pos.y),
+                    map_copy.xy_idx(target_pos.0, target_pos.1),
+                    &mut map_copy,
+                );
+            } else {
+                path = rltk::a_star_search(
+                    map.xy_idx(pos.x, pos.y),
+                    map.xy_idx(target_pos.0, target_pos.1),
+                    &mut *map,
+                );
+            }
             if path.success && path.steps.len() > 1 && path.steps.len() < 15 {
                 apply_move
                     .insert(

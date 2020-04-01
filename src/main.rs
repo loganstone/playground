@@ -192,7 +192,7 @@ impl GameState for State {
                     }
 
                     self.mapgen_timer += ctx.frame_time_ms;
-                    if self.mapgen_timer > 150.0 {
+                    if self.mapgen_timer > 250.0 {
                         self.mapgen_timer = 0.0;
                         self.mapgen_index += 1;
                         if self.mapgen_index >= self.mapgen_history.len() {
@@ -687,6 +687,7 @@ fn main() {
     gs.ecs.register::<Slow>();
     gs.ecs.register::<DamageOverTime>();
     gs.ecs.register::<SpecialAbilities>();
+    gs.ecs.register::<TileSize>();
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
 
     raws::load_raws();

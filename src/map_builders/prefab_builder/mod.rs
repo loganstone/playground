@@ -85,6 +85,10 @@ impl PrefabBuilder {
     }
 
     fn char_to_map(&mut self, ch: char, idx: usize, build_data: &mut BuilderMap) {
+        // Bounds check
+        if idx >= build_data.map.tiles.len() - 1 {
+            return;
+        }
         match ch {
             ' ' => build_data.map.tiles[idx] = TileType::Floor,
             '#' => build_data.map.tiles[idx] = TileType::Wall,
@@ -175,9 +179,7 @@ impl PrefabBuilder {
             for tx in 0..level.width {
                 if tx < build_data.map.width as usize && ty < build_data.map.height as usize {
                     let idx = build_data.map.xy_idx(tx as i32, ty as i32);
-                    if i < string_vec.len() {
-                        self.char_to_map(string_vec[i], idx, build_data);
-                    }
+                    self.char_to_map(string_vec[i], idx, build_data);
                 }
                 i += 1;
             }
@@ -375,9 +377,7 @@ impl PrefabBuilder {
                         let idx = build_data
                             .map
                             .xy_idx(tx as i32 + chunk_x, ty as i32 + chunk_y);
-                        if i < string_vec.len() {
-                            self.char_to_map(string_vec[i], idx, build_data);
-                        }
+                        self.char_to_map(string_vec[i], idx, build_data);
                         used_tiles.insert(idx);
                         i += 1;
                     }

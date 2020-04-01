@@ -1,6 +1,6 @@
 use super::{faction_structs::Reaction, Raws};
 use crate::components::*;
-use crate::random_table::RandomTable;
+use crate::random_table::{MasterTable, RandomTable};
 use crate::specs::saveload::{MarkedBuilder, SimpleMarker};
 use crate::{attr_bonus, mana_at_level, npc_hp};
 use regex::Regex;
@@ -377,6 +377,12 @@ pub fn spawn_named_item(
         // Renderable
         if let Some(renderable) = &item_template.renderable {
             eb = eb.with(get_renderable_component(renderable));
+            if renderable.x_size.is_some() || renderable.y_size.is_some() {
+                eb = eb.with(TileSize {
+                    x: renderable.x_size.unwrap_or(1),
+                    y: renderable.y_size.unwrap_or(1),
+                });
+            }
         }
 
         eb = eb.with(Name {
@@ -501,6 +507,12 @@ pub fn spawn_named_mob(
         // Renderable
         if let Some(renderable) = &mob_template.renderable {
             eb = eb.with(get_renderable_component(renderable));
+            if renderable.x_size.is_some() || renderable.y_size.is_some() {
+                eb = eb.with(TileSize {
+                    x: renderable.x_size.unwrap_or(1),
+                    y: renderable.y_size.unwrap_or(1),
+                });
+            }
         }
 
         eb = eb.with(Name {
@@ -752,6 +764,12 @@ pub fn spawn_named_prop(
         // Renderable
         if let Some(renderable) = &prop_template.renderable {
             eb = eb.with(get_renderable_component(renderable));
+            if renderable.x_size.is_some() || renderable.y_size.is_some() {
+                eb = eb.with(TileSize {
+                    x: renderable.x_size.unwrap_or(1),
+                    y: renderable.y_size.unwrap_or(1),
+                });
+            }
         }
 
         eb = eb.with(Name {
@@ -866,7 +884,23 @@ pub fn spawn_named_entity(
     None
 }
 
-pub fn get_spawn_table_for_depth(raws: &RawMaster, depth: i32) -> RandomTable {
+pub enum SpawnTableType {
+    Item,
+    Mob,
+    Prop,
+}
+
+pub fn spawn_type_by_name(raws: &RawMaster, key: &str) -> SpawnTableType {
+    if raws.item_index.contains_key(key) {
+        SpawnTableType::Item
+    } else if raws.mob_index.contains_key(key) {
+        SpawnTableType::Mob
+    } else {
+        SpawnTableType::Prop
+    }
+}
+
+pub fn get_spawn_table_for_depth(raws: &RawMaster, depth: i32) -> MasterTable {
     use super::SpawnTableEntry;
 
     let available_options: Vec<&SpawnTableEntry> = raws
@@ -876,13 +910,13 @@ pub fn get_spawn_table_for_depth(raws: &RawMaster, depth: i32) -> RandomTable {
         .filter(|a| depth >= a.min_depth && depth <= a.max_depth)
         .collect();
 
-    let mut rt = RandomTable::new();
+    let mut rt = MasterTable::new();
     for e in available_options.iter() {
         let mut weight = e.weight;
         if e.add_map_depth_to_weight.is_some() {
             weight += depth;
         }
-        rt = rt.add(e.name.clone(), weight);
+        rt.add(e.name.clone(), weight, raws);
     }
 
     rt
@@ -897,7 +931,7 @@ pub fn get_item_drop(
         let mut rt = RandomTable::new();
         let available_options = &raws.raws.loot_tables[raws.loot_index[table]];
         for item in available_options.drops.iter() {
-            rt = rt.add(item.name.clone(), item.weight);
+            rt.add(item.name.clone(), item.weight);
         }
         let result = rt.roll(rng);
         return Some(result);
