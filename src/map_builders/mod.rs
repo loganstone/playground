@@ -66,6 +66,8 @@ use town::town_builder;
 use voronoi::VoronoiCellBuilder;
 use voronoi_spawning::VoronoiSpawning;
 use waveform_collapse::WaveformCollapseBuilder;
+mod mushroom_forest;
+use mushroom_forest::*;
 
 pub struct BuilderMap {
     pub spawn_list: Vec<(usize, String)>,
@@ -325,6 +327,7 @@ pub fn level_builder(
         4 => limestone_deep_cavern_builder(new_depth, rng, width, height),
         5 => limestone_transition_builder(new_depth, rng, width, height),
         6 => dwarf_fort_builder(new_depth, rng, width, height),
+        7 => mushroom_entrance(new_depth, rng, width, height),
         _ => random_builder(new_depth, rng, width, height),
     }
 }

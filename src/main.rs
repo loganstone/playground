@@ -688,6 +688,8 @@ fn main() {
     gs.ecs.register::<DamageOverTime>();
     gs.ecs.register::<SpecialAbilities>();
     gs.ecs.register::<TileSize>();
+    gs.ecs.register::<OnDeath>();
+    gs.ecs.register::<AlwaysTargetsSelf>();
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
 
     raws::load_raws();
