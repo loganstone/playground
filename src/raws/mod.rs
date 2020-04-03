@@ -12,6 +12,8 @@ mod faction_structs;
 pub use faction_structs::*;
 mod spell_structs;
 pub use spell_structs::Spell;
+mod weapon_traits;
+pub use weapon_traits::*;
 
 mod rawmaster;
 pub use rawmaster::*;
@@ -33,6 +35,7 @@ pub struct Raws {
     pub loot_tables: Vec<LootTable>,
     pub faction_table: Vec<FactionInfo>,
     pub spells: Vec<Spell>,
+    pub weapon_traits: Vec<WeaponTrait>,
 }
 
 pub fn load_raws() {
