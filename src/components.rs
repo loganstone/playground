@@ -2,7 +2,7 @@ extern crate specs;
 use specs::prelude::*;
 extern crate rltk;
 extern crate specs_derive;
-use rltk::RGB;
+use rltk::{Point, RGB};
 use serde::{Deserialize, Serialize};
 use specs::error::NoError;
 use specs::saveload::{ConvertSaveload, Marker};
@@ -37,6 +37,9 @@ pub struct Renderable {
 
 #[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct Player {}
+
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
+pub struct Target {}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct KnownSpell {
@@ -205,6 +208,11 @@ pub struct Skills {
 
 #[derive(Component, Debug, ConvertSaveload, Clone)]
 pub struct WantsToMelee {
+    pub target: Entity,
+}
+
+#[derive(Component, Debug, ConvertSaveload, Clone)]
+pub struct WantsToShoot {
     pub target: Entity,
 }
 
@@ -386,7 +394,8 @@ pub enum WeaponAttribute {
 }
 
 #[derive(Component, Serialize, Deserialize, Clone)]
-pub struct MeleeWeapon {
+pub struct Weapon {
+    pub range: Option<i32>,
     pub attribute: WeaponAttribute,
     pub damage_n_dice: i32,
     pub damage_die_type: i32,
@@ -417,9 +426,18 @@ pub struct NaturalAttackDefense {
     pub attacks: Vec<NaturalAttack>,
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+pub struct ParticleAnimation {
+    pub step_time: f32,
+    pub path: Vec<Point>,
+    pub current_step: usize,
+    pub timer: f32,
+}
+
 #[derive(Component, Serialize, Deserialize, Clone)]
 pub struct ParticleLifetime {
     pub lifetime_ms: f32,
+    pub animation: Option<ParticleAnimation>,
 }
 
 #[derive(Component, Serialize, Deserialize, Clone)]

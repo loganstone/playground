@@ -80,7 +80,7 @@ pub fn save_game(ecs: &mut World) {
             SerializationHelper,
             Equippable,
             Equipped,
-            MeleeWeapon,
+            Weapon,
             Wearable,
             WantsToRemoveItem,
             ParticleLifetime,
@@ -136,7 +136,9 @@ pub fn save_game(ecs: &mut World) {
             SpecialAbilities,
             TileSize,
             OnDeath,
-            AlwaysTargetsSelf
+            AlwaysTargetsSelf,
+            Target,
+            WantsToShoot
         );
     }
 
@@ -211,7 +213,7 @@ pub fn load_game(ecs: &mut World) {
             SerializationHelper,
             Equippable,
             Equipped,
-            MeleeWeapon,
+            Weapon,
             Wearable,
             WantsToRemoveItem,
             ParticleLifetime,
@@ -267,7 +269,9 @@ pub fn load_game(ecs: &mut World) {
             SpecialAbilities,
             TileSize,
             OnDeath,
-            AlwaysTargetsSelf
+            AlwaysTargetsSelf,
+            Target,
+            WantsToShoot
         );
     }
 

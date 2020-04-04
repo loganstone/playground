@@ -20,6 +20,8 @@ mod map_indexing_system;
 use map_indexing_system::MapIndexingSystem;
 mod melee_combat_system;
 use melee_combat_system::MeleeCombatSystem;
+mod ranged_combat_system;
+use ranged_combat_system::RangedCombatSystem;
 mod damage_system;
 mod gamelog;
 mod gui;
@@ -132,6 +134,8 @@ impl State {
         triggers.run_now(&self.ecs);
         let mut melee = MeleeCombatSystem {};
         melee.run_now(&self.ecs);
+        let mut ranged = RangedCombatSystem {};
+        ranged.run_now(&self.ecs);
         let mut pickup = ItemCollectionSystem {};
         pickup.run_now(&self.ecs);
         let mut itemequip = inventory_system::ItemEquipOnUse {};
@@ -168,7 +172,7 @@ impl GameState for State {
         }
 
         ctx.cls();
-        particle_system::cull_dead_particles(&mut self.ecs, ctx);
+        particle_system::update_particles(&mut self.ecs, ctx);
 
         match newrunstate {
             RunState::MainMenu { .. } => {}
@@ -211,11 +215,15 @@ impl GameState for State {
                 newrunstate = player_input(self, ctx);
             }
             RunState::Ticking => {
+                let mut should_change_target = false;
                 while newrunstate == RunState::Ticking {
                     self.run_systems();
                     self.ecs.maintain();
                     match *self.ecs.fetch::<RunState>() {
-                        RunState::AwaitingInput => newrunstate = RunState::AwaitingInput,
+                        RunState::AwaitingInput => {
+                            newrunstate = RunState::AwaitingInput;
+                            should_change_target = true;
+                        }
                         RunState::MagicMapReveal { .. } => {
                             newrunstate = RunState::MagicMapReveal { row: 0 }
                         }
@@ -227,6 +235,9 @@ impl GameState for State {
                         RunState::ShowIdentify => newrunstate = RunState::ShowIdentify,
                         _ => newrunstate = RunState::Ticking,
                     }
+                }
+                if should_change_target {
+                    player::end_turn_targeting(&mut self.ecs);
                 }
             }
             RunState::ShowInventory => {
@@ -634,7 +645,7 @@ fn main() {
     gs.ecs.register::<DMSerializationHelper>();
     gs.ecs.register::<Equippable>();
     gs.ecs.register::<Equipped>();
-    gs.ecs.register::<MeleeWeapon>();
+    gs.ecs.register::<Weapon>();
     gs.ecs.register::<Wearable>();
     gs.ecs.register::<WantsToRemoveItem>();
     gs.ecs.register::<ParticleLifetime>();
@@ -690,6 +701,8 @@ fn main() {
     gs.ecs.register::<TileSize>();
     gs.ecs.register::<OnDeath>();
     gs.ecs.register::<AlwaysTargetsSelf>();
+    gs.ecs.register::<Target>();
+    gs.ecs.register::<WantsToShoot>();
     gs.ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
 
     raws::load_raws();
