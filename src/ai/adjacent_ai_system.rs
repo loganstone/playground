@@ -1,4 +1,3 @@
-extern crate specs;
 use crate::{raws::Reaction, Faction, Map, MyTurn, Position, TileSize, WantsToMelee};
 use specs::prelude::*;
 

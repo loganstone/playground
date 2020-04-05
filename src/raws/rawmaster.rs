@@ -1,10 +1,10 @@
 use super::{faction_structs::Reaction, Raws};
 use crate::components::*;
 use crate::random_table::{MasterTable, RandomTable};
-use crate::specs::saveload::{MarkedBuilder, SimpleMarker};
 use crate::{attr_bonus, mana_at_level, npc_hp};
 use regex::Regex;
 use specs::prelude::*;
+use specs::saveload::{MarkedBuilder, SimpleMarker};
 use std::collections::{HashMap, HashSet};
 
 pub fn parse_dice_string(dice: &str) -> (i32, i32, i32) {

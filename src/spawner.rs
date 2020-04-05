@@ -1,6 +1,3 @@
-extern crate rltk;
-use rltk::{RandomNumberGenerator, RGB};
-extern crate specs;
 use super::{
     random_table::MasterTable, raws::*, Attribute, AttributeBonus, Attributes, Duration,
     EntryTrigger, EquipmentChanged, Faction, HungerClock, HungerState, Initiative, KnownSpells,
@@ -8,9 +5,10 @@ use super::{
     Rect, Renderable, SerializeMe, SingleActivation, Skill, Skills, StatusEffect, TeleportTo,
     TileType, Viewshed,
 };
-use crate::specs::saveload::{MarkedBuilder, SimpleMarker};
 use crate::{attr_bonus, mana_at_level, player_hp_at_level};
+use rltk::{RandomNumberGenerator, RGB};
 use specs::prelude::*;
+use specs::saveload::{MarkedBuilder, SimpleMarker};
 use std::collections::HashMap;
 
 /// Spawns the player and returns his/her entity object.

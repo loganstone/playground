@@ -1,7 +1,4 @@
-extern crate specs;
-use super::{
-    gamelog::GameLog, Equipped, InBackpack, LootTable, Name, Player, Pools, Position, RunState,
-};
+use super::{Equipped, InBackpack, LootTable, Name, Player, Pools, Position, RunState};
 use specs::prelude::*;
 
 pub fn delete_the_dead(ecs: &mut World) {
@@ -12,7 +9,6 @@ pub fn delete_the_dead(ecs: &mut World) {
         let players = ecs.read_storage::<Player>();
         let names = ecs.read_storage::<Name>();
         let entities = ecs.entities();
-        let mut log = ecs.write_resource::<GameLog>();
         for (entity, stats) in (&entities, &combat_stats).join() {
             if stats.hit_points.current < 1 {
                 let player = players.get(entity);
@@ -20,8 +16,11 @@ pub fn delete_the_dead(ecs: &mut World) {
                     None => {
                         let victim_name = names.get(entity);
                         if let Some(victim_name) = victim_name {
-                            log.entries
-                                .insert(0, format!("{} is dead", &victim_name.name));
+                            crate::gamelog::Logger::new()
+                                .color(rltk::RED)
+                                .append(&victim_name.name)
+                                .append("is dead!")
+                                .log();
                         }
                         dead.push(entity)
                     }

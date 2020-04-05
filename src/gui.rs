@@ -1,12 +1,10 @@
-extern crate rltk;
-use rltk::{Console, Point, Rltk, VirtualKeyCode, RGB};
-extern crate specs;
 use super::{
-    camera, gamelog::GameLog, rex_assets::RexAssets, Attribute, Attributes, Consumable, CursedItem,
+    camera, gamelog, rex_assets::RexAssets, Attribute, Attributes, Consumable, CursedItem,
     Duration, Equipped, Hidden, HungerClock, HungerState, InBackpack, Item, KnownSpells, MagicItem,
     MagicItemClass, Map, MasterDungeonMap, Name, ObfuscatedName, Pools, RunState, State,
     StatusEffect, Vendor, VendorMode, Viewshed, Weapon,
 };
+use rltk::{Console, Point, Rltk, TextBlock, VirtualKeyCode, RGB};
 use specs::prelude::*;
 
 pub fn get_item_color(ecs: &World, item: Entity) -> RGB {
@@ -354,14 +352,15 @@ pub fn draw_ui(ecs: &World, ctx: &mut Rltk) {
     }
 
     // Draw the log
-    let log = ecs.fetch::<GameLog>();
+    /*let log = ecs.fetch::<GameLog>();
     let mut y = 46;
-    for s in log.entries.iter() {
-        if y < 59 {
-            ctx.print(2, y, s);
-        }
+    for s in log.entries.iter().rev() {
+        if y < 59 { ctx.print(2, y, s); }
         y += 1;
-    }
+    }*/
+    let mut block = TextBlock::new(1, 46, 79, 58);
+    block.print(&gamelog::log_display());
+    block.render(&mut ctx.consoles[0].console);
 
     draw_tooltips(ecs, ctx);
 }
@@ -1315,7 +1314,35 @@ pub fn game_over(ctx: &mut Rltk) -> GameOverResult {
     );
 
     ctx.print_color_centered(
+        19,
+        RGB::named(rltk::WHITE),
+        RGB::named(rltk::BLACK),
+        &format!(
+            "You lived for {} turns.",
+            crate::gamelog::get_event_count("Turn")
+        ),
+    );
+    ctx.print_color_centered(
         20,
+        RGB::named(rltk::RED),
+        RGB::named(rltk::BLACK),
+        &format!(
+            "You suffered {} points of damage.",
+            crate::gamelog::get_event_count("Damage Taken")
+        ),
+    );
+    ctx.print_color_centered(
+        21,
+        RGB::named(rltk::RED),
+        RGB::named(rltk::BLACK),
+        &format!(
+            "You inflicted {} points of damage.",
+            crate::gamelog::get_event_count("Damage Inflicted")
+        ),
+    );
+
+    ctx.print_color_centered(
+        23,
         RGB::named(rltk::MAGENTA),
         RGB::named(rltk::BLACK),
         "Press any key to return to the menu.",

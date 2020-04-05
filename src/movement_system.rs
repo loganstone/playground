@@ -1,4 +1,3 @@
-extern crate specs;
 use super::{
     ApplyMove, ApplyTeleport, BlocksTile, EntityMoved, Map, OtherLevelPosition, Position, RunState,
     Viewshed,

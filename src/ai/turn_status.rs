@@ -1,4 +1,3 @@
-extern crate specs;
 use crate::{
     effects::add_effect, effects::EffectType, effects::Targets, Confusion, MyTurn, RunState,
     StatusEffect,

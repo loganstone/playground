@@ -1,4 +1,3 @@
-extern crate specs;
 use crate::{ApplyMove, Chasing, Map, MyTurn, Position, TileSize};
 use specs::prelude::*;
 use std::collections::HashMap;

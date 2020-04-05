@@ -1,5 +1,4 @@
-extern crate specs;
-use crate::{gamelog::GameLog, MyTurn, Name, Quips, Viewshed};
+use crate::{MyTurn, Name, Quips, Viewshed};
 use specs::prelude::*;
 
 pub struct QuipSystem {}
@@ -7,7 +6,6 @@ pub struct QuipSystem {}
 impl<'a> System<'a> for QuipSystem {
     #[allow(clippy::type_complexity)]
     type SystemData = (
-        WriteExpect<'a, GameLog>,
         WriteStorage<'a, Quips>,
         ReadStorage<'a, Name>,
         ReadStorage<'a, MyTurn>,
@@ -17,7 +15,7 @@ impl<'a> System<'a> for QuipSystem {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (mut gamelog, mut quips, names, turns, player_pos, viewsheds, mut rng) = data;
+        let (mut quips, names, turns, player_pos, viewsheds, mut rng) = data;
 
         for (quip, name, viewshed, _turn) in (&mut quips, &names, &viewsheds, &turns).join() {
             if !quip.available.is_empty()
@@ -30,10 +28,11 @@ impl<'a> System<'a> for QuipSystem {
                     (rng.roll_dice(1, quip.available.len() as i32) - 1) as usize
                 };
 
-                gamelog.entries.insert(
-                    0,
-                    format!("{} says \"{}\"", name.name, quip.available[quip_index]),
-                );
+                crate::gamelog::Logger::new()
+                    .npc_name(&name.name)
+                    .append("says")
+                    .item_name(&quip.available[quip_index])
+                    .log();
                 quip.available.remove(quip_index);
             }
         }

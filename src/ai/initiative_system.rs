@@ -1,4 +1,3 @@
-extern crate specs;
 use crate::{
     Attributes, DamageOverTime, Duration, EquipmentChanged, Initiative, MyTurn, Pools, Position,
     RunState, StatusEffect,

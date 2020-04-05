@@ -1,8 +1,6 @@
-extern crate specs;
 use super::{
-    effects::*, gamelog::GameLog, skill_bonus, Attributes, EquipmentSlot, Equipped, HungerClock,
-    HungerState, Name, NaturalAttackDefense, Pools, Skill, Skills, WantsToMelee, Weapon,
-    WeaponAttribute, Wearable,
+    effects::*, skill_bonus, Attributes, EquipmentSlot, Equipped, HungerClock, HungerState, Name,
+    NaturalAttackDefense, Pools, Skill, Skills, WantsToMelee, Weapon, WeaponAttribute, Wearable,
 };
 use specs::prelude::*;
 
@@ -12,7 +10,6 @@ impl<'a> System<'a> for MeleeCombatSystem {
     #[allow(clippy::type_complexity)]
     type SystemData = (
         Entities<'a>,
-        WriteExpect<'a, GameLog>,
         WriteStorage<'a, WantsToMelee>,
         ReadStorage<'a, Name>,
         ReadStorage<'a, Attributes>,
@@ -29,7 +26,6 @@ impl<'a> System<'a> for MeleeCombatSystem {
     fn run(&mut self, data: Self::SystemData) {
         let (
             entities,
-            mut log,
             mut wants_melee,
             names,
             attributes,
@@ -158,13 +154,14 @@ impl<'a> System<'a> for MeleeCombatSystem {
                             target: wants_melee.target,
                         },
                     );
-                    log.entries.insert(
-                        0,
-                        format!(
-                            "{} hits {}, for {} hp.",
-                            &name.name, &target_name.name, damage
-                        ),
-                    );
+                    crate::gamelog::Logger::new()
+                        .npc_name(&name.name)
+                        .append("hits")
+                        .npc_name(&target_name.name)
+                        .append("for")
+                        .damage(damage)
+                        .append("hp.")
+                        .log();
 
                     // Proc effects
                     if let Some(chance) = &weapon_info.proc_chance {
@@ -190,13 +187,16 @@ impl<'a> System<'a> for MeleeCombatSystem {
                     }
                 } else if natural_roll == 1 {
                     // Natural 1 miss
-                    log.entries.insert(
-                        0,
-                        format!(
-                            "{} considers attacking {}, but misjudges the timing.",
-                            name.name, target_name.name
-                        ),
-                    );
+                    crate::gamelog::Logger::new()
+                        .color(rltk::CYAN)
+                        .append(&name.name)
+                        .color(rltk::WHITE)
+                        .append("considers attacking")
+                        .color(rltk::CYAN)
+                        .append(&target_name.name)
+                        .color(rltk::WHITE)
+                        .append("but misjudges the timing!")
+                        .log();
                     add_effect(
                         None,
                         EffectType::Particle {
@@ -211,13 +211,16 @@ impl<'a> System<'a> for MeleeCombatSystem {
                     );
                 } else {
                     // Miss
-                    log.entries.insert(
-                        0,
-                        format!(
-                            "{} attacks {}, but can't connect.",
-                            name.name, target_name.name
-                        ),
-                    );
+                    crate::gamelog::Logger::new()
+                        .color(rltk::CYAN)
+                        .append(&name.name)
+                        .color(rltk::WHITE)
+                        .append("attacks")
+                        .color(rltk::CYAN)
+                        .append(&target_name.name)
+                        .color(rltk::WHITE)
+                        .append("but can't connect.")
+                        .log();
                     add_effect(
                         None,
                         EffectType::Particle {

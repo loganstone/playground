@@ -1,6 +1,6 @@
 use super::{
-    gamelog::GameLog, EquipmentChanged, InBackpack, MagicItem, MasterDungeonMap, Name,
-    ObfuscatedName, Position, WantsToPickupItem,
+    EquipmentChanged, InBackpack, MagicItem, MasterDungeonMap, Name, ObfuscatedName, Position,
+    WantsToPickupItem,
 };
 use specs::prelude::*;
 
@@ -10,7 +10,6 @@ impl<'a> System<'a> for ItemCollectionSystem {
     #[allow(clippy::type_complexity)]
     type SystemData = (
         ReadExpect<'a, Entity>,
-        WriteExpect<'a, GameLog>,
         WriteStorage<'a, WantsToPickupItem>,
         WriteStorage<'a, Position>,
         ReadStorage<'a, Name>,
@@ -24,7 +23,6 @@ impl<'a> System<'a> for ItemCollectionSystem {
     fn run(&mut self, data: Self::SystemData) {
         let (
             player_entity,
-            mut gamelog,
             mut wants_pickup,
             mut positions,
             names,
@@ -50,19 +48,16 @@ impl<'a> System<'a> for ItemCollectionSystem {
                 .expect("Unable to insert");
 
             if pickup.collected_by == *player_entity {
-                gamelog.entries.insert(
-                    0,
-                    format!(
-                        "You pick up the {}.",
-                        super::obfuscate_name(
-                            pickup.item,
-                            &names,
-                            &magic_items,
-                            &obfuscated_names,
-                            &dm
-                        )
-                    ),
-                );
+                crate::gamelog::Logger::new()
+                    .append("You pick up the")
+                    .item_name(super::obfuscate_name(
+                        pickup.item,
+                        &names,
+                        &magic_items,
+                        &obfuscated_names,
+                        &dm,
+                    ))
+                    .log();
             }
         }
 
