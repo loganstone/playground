@@ -1,7 +1,7 @@
 use super::*;
 use crate::components::{
-    Attributes, Confusion, DamageOverTime, Duration, EquipmentChanged, Name, Player,
-    Pools, SerializeMe, Skills, Slow, StatusEffect,
+    Attributes, Confusion, DamageOverTime, Duration, EquipmentChanged, Name, Player, Pools,
+    SerializeMe, Skills, Slow, StatusEffect,
 };
 use crate::gamesystem::{mana_at_level, player_hp_at_level};
 use crate::map::Map;

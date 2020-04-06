@@ -1,7 +1,7 @@
 use super::{
-    AreaOfEffect, CursedItem, EquipmentChanged, Equippable, Equipped, IdentifiedItem,
-    InBackpack, Item, MagicItem, Map, MasterDungeonMap, Name, ObfuscatedName, Position,
-    WantsToCastSpell, WantsToDropItem, WantsToPickupItem, WantsToRemoveItem, WantsToUseItem,
+    AreaOfEffect, CursedItem, EquipmentChanged, Equippable, Equipped, IdentifiedItem, InBackpack,
+    Item, MagicItem, Map, MasterDungeonMap, Name, ObfuscatedName, Position, WantsToCastSpell,
+    WantsToDropItem, WantsToPickupItem, WantsToRemoveItem, WantsToUseItem,
 };
 
 mod collection_system;
