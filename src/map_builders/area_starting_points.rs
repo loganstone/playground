@@ -1,6 +1,5 @@
 use super::{BuilderMap, MetaMapBuilder, Position};
 use crate::map;
-use rltk::RandomNumberGenerator;
 
 #[allow(dead_code)]
 pub enum XStart {
@@ -22,8 +21,8 @@ pub struct AreaStartingPosition {
 }
 
 impl MetaMapBuilder for AreaStartingPosition {
-    fn build_map(&mut self, rng: &mut rltk::RandomNumberGenerator, build_data: &mut BuilderMap) {
-        self.build(rng, build_data);
+    fn build_map(&mut self, build_data: &mut BuilderMap) {
+        self.build(build_data);
     }
 }
 
@@ -33,7 +32,7 @@ impl AreaStartingPosition {
         Box::new(AreaStartingPosition { x, y })
     }
 
-    fn build(&mut self, _rng: &mut RandomNumberGenerator, build_data: &mut BuilderMap) {
+    fn build(&mut self, build_data: &mut BuilderMap) {
         let seed_x;
         let seed_y;
 
